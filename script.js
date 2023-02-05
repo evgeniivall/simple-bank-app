@@ -83,6 +83,12 @@ const loginUser = function (account) {
   containerApp.style.opacity = 100;
 };
 
+const logoutUser = function () {
+  currentAccount = undefined;
+  labelWelcome.textContent = 'Log in to get started';
+  containerApp.style.opacity = 0;
+};
+
 const displayMovements = function (movements) {
   containerMovements.innerHTML = '';
   movements.forEach((mov, i) => {
@@ -140,6 +146,11 @@ const transferMoney = function (accountFrom, accountTo, amount) {
   accountTo.movements.push(amount);
 };
 
+const closeAccount = function (account) {
+  const accIndex = accounts.indexOf(account);
+  accounts.splice(accIndex, 1);
+};
+
 const init = function () {
   generateUsernames(accounts);
 
@@ -168,6 +179,18 @@ const init = function () {
     );
     inputTransferTo.value = inputTransferAmount.value = '';
     updateUI();
+  });
+
+  btnClose.addEventListener('click', e => {
+    e.preventDefault();
+    if (
+      inputCloseUsername.value == currentAccount.username &&
+      Number(inputClosePin.value) == currentAccount.pin
+    ) {
+      closeAccount(currentAccount);
+      logoutUser();
+    }
+    inputCloseUsername.value = inputClosePin.value = '';
   });
 };
 
