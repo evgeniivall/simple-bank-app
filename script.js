@@ -57,6 +57,7 @@ const account4 = {
 
 const accounts = [account1, account2, account3, account4];
 let currentAccount = undefined;
+let isMovementsSorted = false;
 
 const generateUsernames = function (accounts) {
   accounts.forEach(account => {
@@ -89,9 +90,11 @@ const logoutUser = function () {
   containerApp.style.opacity = 0;
 };
 
-const displayMovements = function (movements) {
+const displayMovements = function (movements, sorted) {
+  let movs = sorted ? movements.slice().sort((a, b) => a - b) : movements;
+
   containerMovements.innerHTML = '';
-  movements.forEach((mov, i) => {
+  movs.forEach((mov, i) => {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
 
     const movRow = `
@@ -205,6 +208,12 @@ const init = function () {
 
     inputLoanAmount.value = '';
     updateUI();
+  });
+
+  btnSort.addEventListener('click', e => {
+    e.preventDefault();
+    isMovementsSorted = !isMovementsSorted;
+    displayMovements(currentAccount.movements, isMovementsSorted);
   });
 };
 
