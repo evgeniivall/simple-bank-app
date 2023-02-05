@@ -80,6 +80,26 @@ const loginUser = function (account) {
   containerApp.style.opacity = 100;
 };
 
+const displayMovements = function (movements) {
+  containerMovements.innerHTML = '';
+  movements.forEach((mov, i) => {
+    const type = mov > 0 ? 'deposit' : 'withdrawal';
+
+    const movRow = `
+    <div class="movements__row">
+    <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
+    <div class="movements__date">3 days ago</div>
+    <div class="movements__value">${mov}€</div>
+    </div>`;
+
+    containerMovements.insertAdjacentHTML('afterbegin', movRow);
+  });
+};
+
+const updateUI = function () {
+  displayMovements(currentAccount.movements);
+};
+
 const init = function () {
   generateUsernames(accounts);
 
@@ -96,6 +116,7 @@ const init = function () {
     }
 
     inputLoginUsername.value = inputLoginPin.value = '';
+    updateUI();
   });
 };
 
