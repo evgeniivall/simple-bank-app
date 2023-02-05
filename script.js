@@ -68,10 +68,13 @@ const generateUsernames = function (accounts) {
   });
 };
 
-const getAccountByCredentials = function (username, pin) {
-  const user = accounts.find(account => account.username === username);
+const getAccountByUsername = function (username) {
+  return accounts.find(account => account.username === username);
+};
 
-  return user && user.pin === pin ? user : undefined;
+const getAccountByCredentials = function (username, pin) {
+  const account = getAccountByUsername(username);
+  return account && account.pin === pin ? account : undefined;
 };
 
 const loginUser = function (account) {
