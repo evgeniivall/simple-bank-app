@@ -56,6 +56,7 @@ const account4 = {
 };
 
 const accounts = [account1, account2, account3, account4];
+let currentAccount = undefined;
 
 const generateUsernames = function (accounts) {
   accounts.forEach(account => {
@@ -67,8 +68,35 @@ const generateUsernames = function (accounts) {
   });
 };
 
+const getAccountByCredentials = function (username, pin) {
+  const user = accounts.find(account => account.username === username);
+
+  return user && user.pin === pin ? user : undefined;
+};
+
+const loginUser = function (account) {
+  currentAccount = account;
+  labelWelcome.textContent = `Welcome back, ${account.owner.split(' ')[0]}!`;
+  containerApp.style.opacity = 100;
+};
+
 const init = function () {
   generateUsernames(accounts);
+
+  btnLogin.addEventListener('click', e => {
+    e.preventDefault();
+    const account = getAccountByCredentials(
+      inputLoginUsername.value,
+      Number(inputLoginPin.value)
+    );
+    if (account) {
+      loginUser(account);
+    } else {
+      console.log('Credentials are invalid');
+    }
+
+    inputLoginUsername.value = inputLoginPin.value = '';
+  });
 };
 
 init();
