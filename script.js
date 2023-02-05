@@ -162,12 +162,12 @@ const init = function () {
     );
     if (account) {
       loginUser(account);
+      updateUI();
     } else {
       console.log('Credentials are invalid');
     }
 
     inputLoginUsername.value = inputLoginPin.value = '';
-    updateUI();
   });
 
   btnTransfer.addEventListener('click', e => {
