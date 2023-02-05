@@ -56,3 +56,19 @@ const account4 = {
 };
 
 const accounts = [account1, account2, account3, account4];
+
+const generateUsernames = function (accounts) {
+  accounts.forEach(account => {
+    account.username = account.owner
+      .toLowerCase()
+      .split(' ')
+      .map(name => name[0])
+      .join('');
+  });
+};
+
+const init = function () {
+  generateUsernames(accounts);
+};
+
+init();
