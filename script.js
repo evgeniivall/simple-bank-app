@@ -98,10 +98,11 @@ const displayMovements = function (movements) {
     containerMovements.insertAdjacentHTML('afterbegin', movRow);
   });
 };
-
-const displayBalance = function (movements) {
-  const balance = movements.reduce((acc, mov) => acc + mov, 0);
-  labelBalance.textContent = `${balance} EUR`;
+const updBalance = function (account) {
+  return (account.balance = account.movements.reduce(
+    (acc, mov) => acc + mov,
+    0
+  ));
 };
 
 const displaySummary = function (movements) {
@@ -128,7 +129,7 @@ const displaySummary = function (movements) {
 
 const updateUI = function () {
   displayMovements(currentAccount.movements);
-  displayBalance(currentAccount.movements);
+  labelBalance.textContent = `${updBalance(currentAccount)} EUR`;
   displaySummary(currentAccount.movements);
 };
 
