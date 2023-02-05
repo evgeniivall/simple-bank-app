@@ -133,6 +133,13 @@ const updateUI = function () {
   displaySummary(currentAccount.movements);
 };
 
+const transferMoney = function (accountFrom, accountTo, amount) {
+  if (!accountFrom || !accountTo || amount <= 0 || amount > accountFrom.balance)
+    return;
+  accountFrom.movements.push(-amount);
+  accountTo.movements.push(amount);
+};
+
 const init = function () {
   generateUsernames(accounts);
 
@@ -149,6 +156,17 @@ const init = function () {
     }
 
     inputLoginUsername.value = inputLoginPin.value = '';
+    updateUI();
+  });
+
+  btnTransfer.addEventListener('click', e => {
+    e.preventDefault();
+    transferMoney(
+      currentAccount,
+      getAccountByUsername(inputTransferTo.value),
+      Number(inputTransferAmount.value)
+    );
+    inputTransferTo.value = inputTransferAmount.value = '';
     updateUI();
   });
 };
