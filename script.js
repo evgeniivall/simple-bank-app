@@ -101,9 +101,32 @@ const displayBalance = function (movements) {
   labelBalance.textContent = `${balance} EUR`;
 };
 
+const displaySummary = function (movements) {
+  let incomesTotal = 0,
+    outocomesTotal = 0,
+    interestRate = 0;
+
+  /* Can be done with chaining filter() and reduce(),
+  but in this case we will need to iterate throuth the array 4 times */
+  movements.forEach(mov => {
+    mov > 0 ? (incomesTotal += mov) : (outocomesTotal += mov);
+  });
+
+  interestRate = movements
+    .filter(mov => mov > 0)
+    .map(deposit => (deposit * 1.2) / 100)
+    .filter(interest => interest > 1)
+    .reduce((acc, el) => acc + el, 0);
+
+  labelSumIn.textContent = `${incomesTotal}€`;
+  labelSumOut.textContent = `${Math.abs(outocomesTotal)}€`;
+  labelSumInterest.textContent = `${interestRate}€`;
+};
+
 const updateUI = function () {
   displayMovements(currentAccount.movements);
   displayBalance(currentAccount.movements);
+  displaySummary(currentAccount.movements);
 };
 
 const init = function () {
