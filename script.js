@@ -146,6 +146,12 @@ const transferMoney = function (accountFrom, accountTo, amount) {
   accountTo.movements.push(amount);
 };
 
+const requestLoan = function (account, amount) {
+  if (amount > 0 && account.movements.some(mov => mov >= amount * 0.1)) {
+    account.movements.push(amount);
+  }
+};
+
 const closeAccount = function (account) {
   const accIndex = accounts.indexOf(account);
   accounts.splice(accIndex, 1);
@@ -191,6 +197,14 @@ const init = function () {
       logoutUser();
     }
     inputCloseUsername.value = inputClosePin.value = '';
+  });
+
+  btnLoan.addEventListener('click', e => {
+    e.preventDefault();
+    requestLoan(currentAccount, Number(inputLoanAmount.value));
+
+    inputLoanAmount.value = '';
+    updateUI();
   });
 };
 
