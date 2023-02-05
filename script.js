@@ -96,8 +96,14 @@ const displayMovements = function (movements) {
   });
 };
 
+const displayBalance = function (movements) {
+  const balance = movements.reduce((acc, mov) => acc + mov, 0);
+  labelBalance.textContent = `${balance} EUR`;
+};
+
 const updateUI = function () {
   displayMovements(currentAccount.movements);
+  displayBalance(currentAccount.movements);
 };
 
 const init = function () {
