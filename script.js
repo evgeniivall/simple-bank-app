@@ -29,28 +29,61 @@ const inputClosePin = document.querySelector('.form__input--pin');
 // Mocked Data
 const account1 = {
   owner: 'Jonas Schmedtmann',
-  movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
+  movements: [
+    { created: '2023-02-11T18:43:51.826Z', amount: 200 },
+    { created: '2023-02-11T18:43:51.826Z', amount: 450 },
+    { created: '2023-02-11T18:43:51.826Z', amount: -400 },
+    { created: '2023-02-11T18:43:51.826Z', amount: 3000 },
+    { created: '2023-02-11T18:43:51.826Z', amount: -650 },
+    { created: '2023-02-11T18:43:51.826Z', amount: -130 },
+    { created: '2023-02-11T18:43:51.826Z', amount: 70 },
+    { created: '2023-02-11T18:43:51.826Z', amount: 1300 },
+  ],
   interestRate: 1.2, // %
   pin: 1111,
 };
 
 const account2 = {
   owner: 'Jessica Davis',
-  movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
+  movements: [
+    { created: '2023-02-11T18:43:51.826Z', amount: 5000 },
+    { created: '2023-02-11T18:43:51.826Z', amount: 3400 },
+    { created: '2023-02-11T18:43:51.826Z', amount: -150 },
+    { created: '2023-02-11T18:43:51.826Z', amount: -790 },
+    { created: '2023-02-11T18:43:51.826Z', amount: -3210 },
+    { created: '2023-02-11T18:43:51.826Z', amount: -1000 },
+    { created: '2023-02-11T18:43:51.826Z', amount: 8500 },
+    { created: '2023-02-11T18:43:51.826Z', amount: -30 },
+  ],
   interestRate: 1.5,
   pin: 2222,
 };
 
 const account3 = {
   owner: 'Steven Thomas Williams',
-  movements: [200, -200, 340, -300, -20, 50, 400, -460],
+  movements: [
+    { created: '2023-02-11T18:43:51.826Z', amount: 200 },
+    { created: '2023-02-11T18:43:51.826Z', amount: -200 },
+    { created: '2023-02-11T18:43:51.826Z', amount: 340 },
+    { created: '2023-02-11T18:43:51.826Z', amount: -300 },
+    { created: '2023-02-11T18:43:51.826Z', amount: -20 },
+    { created: '2023-02-11T18:43:51.826Z', amount: 50 },
+    { created: '2023-02-11T18:43:51.826Z', amount: 400 },
+    { created: '2023-02-11T18:43:51.826Z', amount: -460 },
+  ],
   interestRate: 0.7,
   pin: 3333,
 };
 
 const account4 = {
   owner: 'Sarah Smith',
-  movements: [430, 1000, 700, 50, 90],
+  movements: [
+    { created: '2023-02-11T18:43:51.826Z', amount: 430 },
+    { created: '2023-02-11T18:43:51.826Z', amount: 1000 },
+    { created: '2023-02-11T18:43:51.826Z', amount: 700 },
+    { created: '2023-02-11T18:43:51.826Z', amount: 50 },
+    { created: '2023-02-11T18:43:51.826Z', amount: 90 },
+  ],
   interestRate: 1,
   pin: 4444,
 };
@@ -91,17 +124,19 @@ const logoutUser = function () {
 };
 
 const displayMovements = function (movements, sorted) {
-  let movs = sorted ? movements.slice().sort((a, b) => a - b) : movements;
+  let movs = sorted
+    ? movements.slice().sort((a, b) => a.amount - b.amount)
+    : movements;
 
   containerMovements.innerHTML = '';
   movs.forEach((mov, i) => {
-    const type = mov > 0 ? 'deposit' : 'withdrawal';
+    const type = mov.amount > 0 ? 'deposit' : 'withdrawal';
 
     const movRow = `
     <div class="movements__row">
     <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
     <div class="movements__date">3 days ago</div>
-    <div class="movements__value">${mov}€</div>
+    <div class="movements__value">${mov.amount}€</div>
     </div>`;
 
     containerMovements.insertAdjacentHTML('afterbegin', movRow);
@@ -109,7 +144,7 @@ const displayMovements = function (movements, sorted) {
 };
 const updBalance = function (account) {
   return (account.balance = account.movements.reduce(
-    (acc, mov) => acc + mov,
+    (acc, mov) => acc + mov.amount,
     0
   ));
 };
@@ -118,14 +153,15 @@ const displaySummary = function (movements) {
   let incomesTotal = 0,
     outocomesTotal = 0,
     interestRate = 0;
+  let movAmounts = movements.flatMap(mov => mov.amount);
 
   /* Can be done with chaining filter() and reduce(),
   but in this case we will need to iterate throuth the array 4 times */
-  movements.forEach(mov => {
+  movAmounts.forEach(mov => {
     mov > 0 ? (incomesTotal += mov) : (outocomesTotal += mov);
   });
 
-  interestRate = movements
+  interestRate = movAmounts
     .filter(mov => mov > 0)
     .map(deposit => (deposit * 1.2) / 100)
     .filter(interest => interest > 1)
@@ -145,13 +181,16 @@ const updateUI = function () {
 const transferMoney = function (accountFrom, accountTo, amount) {
   if (!accountFrom || !accountTo || amount <= 0 || amount > accountFrom.balance)
     return;
-  accountFrom.movements.push(-amount);
-  accountTo.movements.push(amount);
+  let now = new Date().toISOString();
+
+  accountFrom.movements.push({ created: now, amount: -amount });
+  accountTo.movements.push({ created: now, amount: amount });
 };
 
 const requestLoan = function (account, amount) {
-  if (amount > 0 && account.movements.some(mov => mov >= amount * 0.1)) {
-    account.movements.push(amount);
+  if (amount > 0 && account.movements.some(mov => mov.amount >= amount * 0.1)) {
+    let now = new Date().toISOString();
+    account.movements.push({ created: now, amount: amount });
   }
 };
 
