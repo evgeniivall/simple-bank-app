@@ -136,7 +136,7 @@ const displayMovements = function (movements, sorted) {
     <div class="movements__row">
     <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
     <div class="movements__date">3 days ago</div>
-    <div class="movements__value">${mov.amount}€</div>
+    <div class="movements__value">${mov.amount.toFixed(2)}€</div>
     </div>`;
 
     containerMovements.insertAdjacentHTML('afterbegin', movRow);
@@ -167,14 +167,14 @@ const displaySummary = function (movements) {
     .filter(interest => interest > 1)
     .reduce((acc, el) => acc + el, 0);
 
-  labelSumIn.textContent = `${incomesTotal}€`;
-  labelSumOut.textContent = `${Math.abs(outocomesTotal)}€`;
-  labelSumInterest.textContent = `${interestRate}€`;
+  labelSumIn.textContent = `${incomesTotal.toFixed(2)}€`;
+  labelSumOut.textContent = `${Math.abs(outocomesTotal).toFixed(2)}€`;
+  labelSumInterest.textContent = `${interestRate.toFixed(2)}€`;
 };
 
 const updateUI = function () {
   displayMovements(currentAccount.movements);
-  labelBalance.textContent = `${updBalance(currentAccount)} EUR`;
+  labelBalance.textContent = `${updBalance(currentAccount).toFixed(2)} EUR`;
   displaySummary(currentAccount.movements);
 };
 
