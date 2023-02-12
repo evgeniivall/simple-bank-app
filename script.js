@@ -30,14 +30,14 @@ const inputClosePin = document.querySelector('.form__input--pin');
 const account1 = {
   owner: 'Jonas Schmedtmann',
   movements: [
-    { created: '2023-02-11T18:43:51.826Z', amount: 200 },
-    { created: '2023-02-11T18:43:51.826Z', amount: 450 },
-    { created: '2023-02-11T18:43:51.826Z', amount: -400 },
-    { created: '2023-02-11T18:43:51.826Z', amount: 3000 },
-    { created: '2023-02-11T18:43:51.826Z', amount: -650 },
-    { created: '2023-02-11T18:43:51.826Z', amount: -130 },
-    { created: '2023-02-11T18:43:51.826Z', amount: 70 },
-    { created: '2023-02-11T18:43:51.826Z', amount: 1300 },
+    { created: '2023-01-11T18:43:51.826Z', amount: 200 },
+    { created: '2023-01-11T18:43:51.826Z', amount: 450 },
+    { created: '2023-01-11T18:43:51.826Z', amount: -400 },
+    { created: '2023-01-11T18:43:51.826Z', amount: 3000 },
+    { created: '2023-02-03T18:43:51.826Z', amount: -650 },
+    { created: '2023-02-05T18:43:51.826Z', amount: -130 },
+    { created: '2023-02-09T18:43:51.826Z', amount: 70 },
+    { created: '2023-02-10T18:43:51.826Z', amount: 1300 },
   ],
   interestRate: 1.2, // %
   pin: 1111,
@@ -141,6 +141,18 @@ const logoutUser = function () {
   containerApp.style.opacity = 0;
 };
 
+const formatMovementDate = function (date) {
+  const calDaysPassed = (date1, date2) =>
+    Math.round(Math.abs(date1 - date2) / (1000 * 60 * 60 * 24));
+  const daysPassed = calDaysPassed(new Date(), date);
+
+  if (daysPassed === 0) return 'Today';
+  if (daysPassed === 1) return 'Yesterday';
+  if (daysPassed <= 7) return `${daysPassed} days ago`;
+
+  return formatDate(date);
+};
+
 const displayMovements = function (movements, sorted) {
   let movs = sorted
     ? movements.slice().sort((a, b) => a.amount - b.amount)
@@ -153,7 +165,9 @@ const displayMovements = function (movements, sorted) {
     const movRow = `
     <div class="movements__row">
     <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
-    <div class="movements__date">${formatDate(new Date(mov.created))}</div>
+    <div class="movements__date">${formatMovementDate(
+      new Date(mov.created)
+    )}</div>
     <div class="movements__value">${mov.amount.toFixed(2)}€</div>
     </div>`;
 
