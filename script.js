@@ -41,6 +41,7 @@ const account1 = {
   ],
   interestRate: 1.2, // %
   pin: 1111,
+  locale: 'en-US',
 };
 
 const account2 = {
@@ -57,6 +58,7 @@ const account2 = {
   ],
   interestRate: 1.5,
   pin: 2222,
+  locale: 'uk-UA',
 };
 
 const account3 = {
@@ -73,6 +75,7 @@ const account3 = {
   ],
   interestRate: 0.7,
   pin: 3333,
+  locale: 'de-DE',
 };
 
 const account4 = {
@@ -86,28 +89,28 @@ const account4 = {
   ],
   interestRate: 1,
   pin: 4444,
+  locale: 'en-GB',
 };
 
 const accounts = [account1, account2, account3, account4];
 let currentAccount = undefined;
 let isMovementsSorted = false;
 
-const formatDate = function (date) {
-  return (
-    String(date.getDate()).padStart(2, '0') +
-    '/' +
-    String(date.getMonth() + 1).padStart(2, '0') +
-    '/' +
-    date.getFullYear()
-  );
+const formatDate = function (date, locale) {
+  const options = {
+    day: 'numeric',
+    month: 'numeric',
+    year: 'numeric',
+  };
+  return new Intl.DateTimeFormat(locale, options).format(date);
 };
 
-const formatTime = function (date) {
-  return (
-    String(date.getHours()).padStart(2, '0') +
-    ':' +
-    String(date.getMinutes() + 1).padStart(2, '0')
-  );
+const formatTime = function (date, locale) {
+  const options = {
+    hour: 'numeric',
+    minute: 'numeric',
+  };
+  return new Intl.DateTimeFormat(locale, options).format(date);
 };
 
 const generateUsernames = function (accounts) {
@@ -141,7 +144,7 @@ const logoutUser = function () {
   containerApp.style.opacity = 0;
 };
 
-const formatMovementDate = function (date) {
+const formatMovementDate = function (date, locale) {
   const calDaysPassed = (date1, date2) =>
     Math.round(Math.abs(date1 - date2) / (1000 * 60 * 60 * 24));
   const daysPassed = calDaysPassed(new Date(), date);
@@ -150,10 +153,10 @@ const formatMovementDate = function (date) {
   if (daysPassed === 1) return 'Yesterday';
   if (daysPassed <= 7) return `${daysPassed} days ago`;
 
-  return formatDate(date);
+  return formatDate(date, locale);
 };
 
-const displayMovements = function (movements, sorted) {
+const displayMovements = function (movements, locale, sorted) {
   let movs = sorted
     ? movements.slice().sort((a, b) => a.amount - b.amount)
     : movements;
@@ -166,7 +169,8 @@ const displayMovements = function (movements, sorted) {
     <div class="movements__row">
     <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
     <div class="movements__date">${formatMovementDate(
-      new Date(mov.created)
+      new Date(mov.created),
+      locale
     )}</div>
     <div class="movements__value">${mov.amount.toFixed(2)}€</div>
     </div>`;
@@ -207,8 +211,12 @@ const displaySummary = function (movements) {
 const updateUI = function () {
   const now = new Date();
 
-  labelDate.textContent = `${formatDate(now)} ${formatTime(now)}`;
-  displayMovements(currentAccount.movements);
+  labelDate.textContent =
+    formatDate(now, currentAccount.locale) +
+    ' ' +
+    formatTime(now, currentAccount.locale);
+
+  displayMovements(currentAccount.movements, currentAccount.locale, false);
   labelBalance.textContent = `${updBalance(currentAccount).toFixed(2)} EUR`;
   displaySummary(currentAccount.movements);
 };
@@ -287,7 +295,11 @@ const init = function () {
   btnSort.addEventListener('click', e => {
     e.preventDefault();
     isMovementsSorted = !isMovementsSorted;
-    displayMovements(currentAccount.movements, isMovementsSorted);
+    displayMovements(
+      currentAccount.movements,
+      currentAccount.locale,
+      isMovementsSorted
+    );
   });
 };
 
