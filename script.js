@@ -42,6 +42,7 @@ const account1 = {
   interestRate: 1.2, // %
   pin: 1111,
   locale: 'en-US',
+  currency: 'USD',
 };
 
 const account2 = {
@@ -59,6 +60,7 @@ const account2 = {
   interestRate: 1.5,
   pin: 2222,
   locale: 'uk-UA',
+  currency: 'UAH',
 };
 
 const account3 = {
@@ -76,6 +78,7 @@ const account3 = {
   interestRate: 0.7,
   pin: 3333,
   locale: 'de-DE',
+  currency: 'EUR',
 };
 
 const account4 = {
@@ -90,6 +93,7 @@ const account4 = {
   interestRate: 1,
   pin: 4444,
   locale: 'en-GB',
+  currency: 'GBP',
 };
 
 const accounts = [account1, account2, account3, account4];
@@ -111,6 +115,14 @@ const formatTime = function (date, locale) {
     minute: 'numeric',
   };
   return new Intl.DateTimeFormat(locale, options).format(date);
+};
+
+const formatAmount = function (amount, currency, locale) {
+  const options = {
+    style: 'currency',
+    currency: currency,
+  };
+  return new Intl.NumberFormat(locale, options).format(amount);
 };
 
 const generateUsernames = function (accounts) {
@@ -156,7 +168,7 @@ const formatMovementDate = function (date, locale) {
   return formatDate(date, locale);
 };
 
-const displayMovements = function (movements, locale, sorted) {
+const displayMovements = function (movements, currency, locale, sorted) {
   let movs = sorted
     ? movements.slice().sort((a, b) => a.amount - b.amount)
     : movements;
@@ -172,7 +184,11 @@ const displayMovements = function (movements, locale, sorted) {
       new Date(mov.created),
       locale
     )}</div>
-    <div class="movements__value">${mov.amount.toFixed(2)}€</div>
+    <div class="movements__value">${formatAmount(
+      mov.amount,
+      currency,
+      locale
+    )}</div>
     </div>`;
 
     containerMovements.insertAdjacentHTML('afterbegin', movRow);
@@ -185,7 +201,7 @@ const updBalance = function (account) {
   ));
 };
 
-const displaySummary = function (movements) {
+const displaySummary = function (movements, currency, locale) {
   let incomesTotal = 0,
     outocomesTotal = 0,
     interestRate = 0;
@@ -203,9 +219,13 @@ const displaySummary = function (movements) {
     .filter(interest => interest > 1)
     .reduce((acc, el) => acc + el, 0);
 
-  labelSumIn.textContent = `${incomesTotal.toFixed(2)}€`;
-  labelSumOut.textContent = `${Math.abs(outocomesTotal).toFixed(2)}€`;
-  labelSumInterest.textContent = `${interestRate.toFixed(2)}€`;
+  labelSumIn.textContent = formatAmount(incomesTotal, currency, locale);
+  labelSumOut.textContent = formatAmount(
+    Math.abs(outocomesTotal),
+    currency,
+    locale
+  );
+  labelSumInterest.textContent = formatAmount(interestRate, currency, locale);
 };
 
 const updateUI = function () {
@@ -216,9 +236,22 @@ const updateUI = function () {
     ' ' +
     formatTime(now, currentAccount.locale);
 
-  displayMovements(currentAccount.movements, currentAccount.locale, false);
-  labelBalance.textContent = `${updBalance(currentAccount).toFixed(2)} EUR`;
-  displaySummary(currentAccount.movements);
+  displayMovements(
+    currentAccount.movements,
+    currentAccount.currency,
+    currentAccount.locale,
+    false
+  );
+  labelBalance.textContent = formatAmount(
+    updBalance(currentAccount),
+    currentAccount.currency,
+    currentAccount.locale
+  );
+  displaySummary(
+    currentAccount.movements,
+    currentAccount.currency,
+    currentAccount.locale
+  );
 };
 
 const transferMoney = function (accountFrom, accountTo, amount) {
@@ -297,6 +330,7 @@ const init = function () {
     isMovementsSorted = !isMovementsSorted;
     displayMovements(
       currentAccount.movements,
+      currentAccount.currency,
       currentAccount.locale,
       isMovementsSorted
     );
