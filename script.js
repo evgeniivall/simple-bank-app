@@ -263,10 +263,13 @@ const transferMoney = function (accountFrom, accountTo, amount) {
   accountTo.movements.push({ created: now, amount: amount });
 };
 
-const requestLoan = function (account, amount) {
+const requestLoan = function (account, amount, onComplete) {
   if (amount > 0 && account.movements.some(mov => mov.amount >= amount * 0.1)) {
-    let now = new Date().toISOString();
-    account.movements.push({ created: now, amount: amount });
+    setTimeout(() => {
+      let now = new Date().toISOString();
+      account.movements.push({ created: now, amount: amount });
+      onComplete();
+    }, 5000);
   }
 };
 
@@ -319,10 +322,10 @@ const init = function () {
 
   btnLoan.addEventListener('click', e => {
     e.preventDefault();
-    requestLoan(currentAccount, Number(inputLoanAmount.value));
-
+    requestLoan(currentAccount, Number(inputLoanAmount.value), () => {
+      updateUI();
+    });
     inputLoanAmount.value = '';
-    updateUI();
   });
 
   btnSort.addEventListener('click', e => {
