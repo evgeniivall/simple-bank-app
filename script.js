@@ -135,6 +135,23 @@ const generateUsernames = function (accounts) {
   });
 };
 
+const startLogoutTimer = function (acc) {
+  let timeount = 10 * 60; //Timeout in seconds
+  const logoutCountdown = () => {
+    const minutes = String(Math.trunc(timeount / 60)).padStart(2, '0');
+    const seconds = String(timeount % 60).padStart(2, '0');
+
+    if (timeount === 0) {
+      logoutUser();
+    }
+
+    labelTimer.textContent = `${minutes}:${seconds}`;
+    timeount--;
+  };
+  logoutCountdown();
+  acc.logoutTimer = setInterval(logoutCountdown, 1000);
+};
+
 const getAccountByUsername = function (username) {
   return accounts.find(account => account.username === username);
 };
@@ -148,9 +165,11 @@ const loginUser = function (account) {
   currentAccount = account;
   labelWelcome.textContent = `Welcome back, ${account.owner.split(' ')[0]}!`;
   containerApp.style.opacity = 100;
+  startLogoutTimer(account);
 };
 
 const logoutUser = function () {
+  currentAccount.logoutTimer && clearInterval(currentAccount.logoutTimer);
   currentAccount = undefined;
   labelWelcome.textContent = 'Log in to get started';
   containerApp.style.opacity = 0;
@@ -288,6 +307,7 @@ const init = function () {
       Number(inputLoginPin.value)
     );
     if (account) {
+      currentAccount && logoutUser();
       loginUser(account);
       updateUI();
     } else {
